@@ -188,7 +188,7 @@ export default {
     },
     logout () {
       this.getLogout()
-      /* this.$store.commit('unsetToken') */
+      this.$store.commit('unsetToken')
     }
   }
 }
