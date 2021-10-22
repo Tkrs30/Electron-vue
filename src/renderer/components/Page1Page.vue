@@ -64,9 +64,11 @@
       </button>
     </form>
     <br />
-    <button @click="logout">
-      Relations
-    </button>
+    <template v-if="setLogout() == true">
+      <button @click="logout">
+        Logout
+      </button>
+    </template>
     <template v-if="orderInfos != null">
       <a><h3>Commande(s) passé le {{ date }}</h3></a>
       <li v-for="orderInfo in orderInfos" :key="orderInfo.id">
@@ -139,6 +141,14 @@ export default {
     setToken () {
       this.$store.commit('setToken', this.token)
     },
+    setLogout () {
+      this.token = this.$store.state.token
+
+      if (this.token != null) {
+        return true
+      }
+      return false
+    },
     getOrder () {
       axios
         .get(Vue.configApp.apiMercapro.baseUrl + '/api/orders/' + this.relation_id + '/' + this.date, {
@@ -174,9 +184,8 @@ export default {
         })
     },
     getLogout () {
-      console.log(this.token)
       axios
-        .post(Vue.configApp.apiMercapro.baseUrl + '/api/logout', {
+        .post(Vue.configApp.apiMercapro.baseUrl + '/api/logout', null, {
           headers: {
             accept: 'application/json',
             Authorization: 'Bearer ' + this.token
