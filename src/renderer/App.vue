@@ -7,7 +7,9 @@
 
 <script>
   export default {
-    name: 'my-project'
+    mounted () {
+      console.log(this.$store.state.count)
+    }
   }
 </script>
 

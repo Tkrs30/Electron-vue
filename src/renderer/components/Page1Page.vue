@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <h1>Bonjour vous êtes sur la page 1 !</h1>
-    <!-- <template v-if="getToken == true"> -->
+    <template v-if="getToken() === true">
       <br />
       <form @submit.prevent="getUrl" method="post">
         <div class="mb-3 pt-0">
@@ -26,7 +26,7 @@
           Valider
         </button>
       </form>
-    <!-- </template> -->
+    </template>
     <br />
     <button @click="getRelations">
       Relations
@@ -98,13 +98,12 @@ export default {
       password: Vue.configApp.apiMercapro.password,
       relation_id: '',
       date: '',
-      token: '',
+      token: null,
       relations: null,
       orderInfos: null
     }
   },
   mounted () {
-
   },
   methods: {
     getUrl: function (e) {
@@ -116,7 +115,6 @@ export default {
       if (!this.password && !this.email) {
         this.errors.push('Email or Password required.')
       }
-      console.log(this.errors)
       e.preventDefault()
     },
     getOrderInfo: function (e) {
@@ -128,27 +126,18 @@ export default {
       if (!this.date && !this.relation_id) {
         this.errors.push('Email or Password required.')
       }
-      console.log(this.errors)
       e.preventDefault()
     },
     getToken () {
-      const Store = require('electron-store')
-      const store = new Store()
+      this.token = this.$store.state.token
 
-      if (!store.get('token')) {
+      if (this.token == null) {
         return true
-      } else {
-        this.token = store.get('token')
-        console.log('ici mec')
-        return false
       }
+      return false
     },
     setToken () {
-      const Store = require('electron-store')
-      const store = new Store()
-      console.log('on est bien la')
-
-      store.set('token', this.token)
+      this.$store.commit('setToken', this.token)
     },
     getOrder () {
       axios
@@ -159,9 +148,6 @@ export default {
         })
         .then((data) => {
           this.orderInfos = data.data
-        })
-        .catch((err) => {
-          console.log(err)
         })
     },
     getRelations () {
@@ -175,9 +161,6 @@ export default {
         .then((data) => {
           this.relations = data.data
         })
-        .catch((err) => {
-          console.log(err)
-        })
     },
     getData () {
       axios
@@ -187,16 +170,25 @@ export default {
         })
         .then((data) => {
           this.token = data.data.token
-          console.log(this.token)
           this.setToken()
         })
     },
+    getLogout () {
+      console.log(this.token)
+      axios
+        .post(Vue.configApp.apiMercapro.baseUrl + '/api/logout', {
+          headers: {
+            accept: 'application/json',
+            Authorization: 'Bearer ' + this.token
+          }
+        })
+        .then((data) => {
+          console.log('ca cest bien pasé')
+        })
+    },
     logout () {
-      const Store = require('electron-store')
-      const store = new Store()
-
-      console.log('ca pas ici toto')
-      store.delete('token')
+      this.getLogout()
+      /* this.$store.commit('unsetToken') */
     }
   }
 }
